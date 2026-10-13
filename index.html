@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B3B60">
+<title>União Next - Área do Cliente</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*{font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+body{margin:0;background:#F4F7FA;-webkit-font-smoothing:antialiased}
+.grad{background:linear-gradient(135deg,#0B3B60 0%,#1A9C63 100%)}
+.hide{display:none!important}
+.fade{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.slide-up{animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.inp{width:100%;padding:12px 14px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;font-size:14px;outline:none;transition:all .2s}
+.inp:focus{border-color:#1A9C63;box-shadow:0 0 0 4px rgba(26,156,99,.1);background:#fff}
+.btn-primary{background:linear-gradient(135deg,#0B3B60,#1A9C63);color:#fff;font-weight:700;border-radius:14px;padding:14px;font-size:15px;box-shadow:0 8px 20px rgba(26,156,99,.25);border:none;cursor:pointer;width:100%;transition:all .2s}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-sec{background:#F8FAFC;color:#0B3B60;font-weight:600;border-radius:12px;padding:12px;border:1px solid #E2E8F0;cursor:pointer;transition:all .2s}
+.btn-sec:active{transform:scale(.98)}
+.st-ativo{background:#DCFCE7;color:#166534}
+.st-contem{background:#DBEAFE;color:#1E40AF}
+.st-canc{background:#FEE2E2;color:#991B1B}
+.st-pago{background:#DCFCE7;color:#166534}
+.st-pend{background:#FEF9C3;color:#854D0E}
+.st-atras{background:#FEE2E2;color:#991B1B}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #F1F5F9;display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:40;box-shadow:0 -4px 20px rgba(11,59,96,.06)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;color:#94A3B8;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s;background:none;border:none;border-radius:12px}
+.tab-item.active{color:#1A9C63}
+.tab-item.active .tab-icon{background:linear-gradient(135deg,#0B3B60,#1A9C63);color:#fff}
+.tab-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:transparent;transition:all .2s}
+.tab-icon svg{width:20px;height:20px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,.2);animation:toastIn .3s;max-width:90vw;text-align:center}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+.modal-bg{position:fixed;inset:0;background:rgba(11,59,96,.5);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.modal-bg.center{align-items:center;padding:16px}
+.modal{background:#fff;width:100%;max-width:560px;border-radius:24px 24px 0 0;max-height:90vh;overflow-y:auto}
+.modal-bg.center .modal{border-radius:24px;max-height:85vh}
+.logo-click{cursor:pointer;user-select:none;transition:transform .1s}
+.logo-click:active{transform:scale(.95)}
+.skeleton{background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:200% 100%;animation:sk 1.5s infinite;border-radius:8px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.progress-bar{height:8px;background:#F1F5F9;border-radius:99px;overflow:hidden}
+.progress-bar>div{height:100%;background:linear-gradient(90deg,#0B3B60,#1A9C63);border-radius:99px;transition:width .8s ease}
+.notice-dot{width:8px;height:8px;border-radius:50%;background:#EF4444;position:absolute;top:6px;right:6px;border:2px solid #fff}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:10px}
+.loading-spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="s-welcome" class="min-h-screen flex items-center justify-center p-4" style="background:#F4F7FA">
+  <div class="w-full max-w-md bg-white rounded-3xl p-8 fade" style="box-shadow:0 20px 60px rgba(11,59,96,.08)">
+    <div class="flex justify-center mb-3">
+      <div id="logo-trigger" class="logo-click flex items-center gap-2">
+        <div class="w-11 h-11 rounded-xl grad flex items-center justify-center text-white" style="box-shadow:0 10px 20px rgba(26,156,99,.3)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-1.5 1.5a2.12 2.12 0 0 1-3-3l6-6a2.12 2.12 0 0 1 3 3L14 14"/><path d="M18 6l1.5-1.5a2.12 2.12 0 0 1 3 3l-6 6a2.12 2.12 0 0 1-3-3L14 10"/></svg>
+        </div>
+        <h1 class="text-3xl font-black" style="color:#0B3B60">União <span style="color:#1A9C63">Next</span></h1>
+      </div>
+    </div>
+    <p class="text-center text-sm mb-8 font-medium" style="color:#64748B">Escolha o acesso desejado</p>
+    <div class="space-y-4">
+      <button type="button" id="go-admin" class="w-full flex items-center p-4 bg-white rounded-2xl text-left" style="border:1px solid #F1F5F9">
+        <div class="w-12 h-12 rounded-full grad flex items-center justify-center shrink-0 mr-4" style="box-shadow:0 8px 16px rgba(26,156,99,.25)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="font-bold text-base" style="color:#0B3B60">Acesso Administrativo</h2>
+          <p class="text-xs mt-0.5" style="color:#64748B">Vendedores, Masters e Master Principal</p>
+        </div>
+      </button>
+      <button type="button" id="go-cliente" class="w-full flex items-center p-4 bg-white rounded-2xl text-left" style="border:1px solid #F1F5F9">
+        <div class="w-12 h-12 rounded-full grad flex items-center justify-center shrink-0 mr-4" style="box-shadow:0 8px 16px rgba(26,156,99,.25)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="font-bold text-base" style="color:#0B3B60">Área do Cliente</h2>
+          <p class="text-xs mt-0.5" style="color:#64748B">Acompanhe seu consórcio</p>
+        </div>
+      </button>
+    </div>
+    <p class="text-center text-[10px] mt-8" style="color:#94A3B8">© 2026 União Next • Todos os direitos reservados</p>
+  </div>
+</div>
+
+<div id="s-cliente-login" class="hide min-h-screen flex items-center justify-center p-4" style="background:linear-gradient(135deg,#0B3B60,#1A9C63)">
+  <div class="w-full max-w-md fade">
+    <button id="back1" class="mb-4 text-white text-sm flex items-center gap-1" style="opacity:.85">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Voltar
+    </button>
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)">
+        <h1 class="text-2xl font-black text-white">União <span style="color:#5EEAD4">Next</span></h1>
+      </div>
+      <p class="text-sm mt-3" style="color:rgba(255,255,255,.7)">Área do Cliente</p>
+    </div>
+    <div class="bg-white rounded-3xl p-8" style="box-shadow:0 25px 50px rgba(0,0,0,.15)">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 rounded-2xl grad flex items-center justify-center mx-auto mb-3" style="box-shadow:0 10px 20px rgba(26,156,99,.3)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <h2 class="text-2xl font-bold" style="color:#0B3B60">Acesse seu Consórcio</h2>
+        <p class="text-sm mt-1" style="color:#64748B">Informe o Grupo e a Cota</p>
+      </div>
+      <form id="form-cliente-login" class="space-y-4">
+        <div>
+          <label class="text-xs font-bold uppercase" style="color:#64748B">Grupo</label>
+          <input type="text" id="cli-grupo" required class="inp mt-2 font-semibold" placeholder="Ex: 1500">
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase" style="color:#64748B">Cota</label>
+          <input type="text" id="cli-cota" required class="inp mt-2 font-semibold" placeholder="Ex: 045">
+        </div>
+        <div id="cli-erro" class="hide text-sm px-4 py-3 rounded-xl" style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C">
+          <span id="cli-erro-msg">Grupo ou cota não encontrados.</span>
+        </div>
+        <button type="submit" id="btn-cli-login" class="btn-primary flex justify-center items-center gap-2">
+          <span id="btn-cli-login-txt">Entrar</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="s-admin-login" class="hide min-h-screen flex items-center justify-center p-4" style="background:#0B3B60">
+  <div class="w-full max-w-md fade">
+    <button id="back2" class="mb-4 text-white text-sm flex items-center gap-1" style="opacity:.85">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Voltar
+    </button>
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)">
+        <h1 class="text-2xl font-black text-white">Painel <span style="color:#5EEAD4">Admin</span></h1>
+      </div>
+    </div>
+    <div class="bg-white rounded-3xl p-8" style="box-shadow:0 25px 50px rgba(0,0,0,.2)">
+      <h2 class="text-2xl font-bold mb-1" style="color:#0B3B60">Login Administrativo</h2>
+      <p class="text-sm mb-6" style="color:#64748B">Apenas pessoal autorizado</p>
+      <form id="form-admin-login" class="space-y-4">
+        <div>
+          <label class="text-xs font-bold uppercase" style="color:#64748B">E-mail</label>
+          <input type="email" id="adm-email" required class="inp mt-2" placeholder="admin@uniaonext.com">
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase" style="color:#64748B">Senha</label>
+          <input type="password" id="adm-senha" required class="inp mt-2" placeholder="••••••••">
+        </div>
+        <div id="adm-erro" class="hide text-sm px-4 py-3 rounded-xl" style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C">
+          <span id="adm-erro-msg">Credenciais inválidas.</span>
+        </div>
+        <button type="submit" id="btn-adm-login" class="btn-primary flex justify-center items-center gap-2" style="background:#0B3B60">
+          <span id="btn-adm-login-txt">Acessar Painel</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="s-app" class="hide">
+  <nav class="text-white sticky top-0 z-30" style="background:#0B3B60;box-shadow:0 4px 12px rgba(0,0,0,.08)">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg grad flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-1.5 1.5a2.12 2.12 0 0 1-3-3l6-6a2.12 2.12 0 0 1 3 3L14 14"/><path d="M18 6l1.5-1.5a2.12 2.12 0 0 1 3 3l-6 6a2.12 2.12 0 0 1-3-3L14 10"/></svg>
+        </div>
+        <h1 class="text-lg font-black">União <span style="color:#5EEAD4">Next</span></h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 rounded-xl px-3 py-2" style="background:rgba(255,255,255,.1)">
+          <div id="nav-av" class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style="background:#1A9C63">A</div>
+          <div>
+            <p id="nav-nome" class="text-xs font-bold leading-tight">Admin</p>
+            <p id="nav-role" class="text-[10px] leading-tight" style="color:rgba(255,255,255,.6)">Admin</p>
+          </div>
+        </div>
+        <button id="btn-logout" class="p-2 rounded-lg" style="background:rgba(255,255,255,.1)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div id="view-admin" class="hide max-w-6xl mx-auto px-4 pt-4 pb-20">
+    <div class="flex gap-2 mb-4 overflow-x-auto" style="scrollbar-width:none">
+      <button data-atab="dash" class="atab btn-sec whitespace-nowrap" style="padding:8px 16px;font-size:13px;background:#0B3B60;color:#fff">📊 Dashboard</button>
+      <button data-atab="clientes" class="atab btn-sec whitespace-nowrap" style="padding:8px 16px;font-size:13px">👥 Clientes</button>
+      <button data-atab="avisos" class="atab btn-sec whitespace-nowrap" style="padding:8px 16px;font-size:13px">📢 Avisos</button>
+      <button data-atab="config" class="atab btn-sec whitespace-nowrap" style="padding:8px 16px;font-size:13px">⚙️ Config</button>
+    </div>
+
+    <div id="at-dash" class="atab-panel">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div class="bg-white p-4 rounded-2xl" style="border:1px solid #F1F5F9"><p class="text-xs font-medium mb-1" style="color:#64748B">Total Clientes</p><p id="m-total" class="text-2xl font-bold" style="color:#0B3B60">0</p></div>
+        <div class="bg-white p-4 rounded-2xl" style="border:1px solid #F1F5F9"><p class="text-xs font-medium mb-1" style="color:#64748B">Ativos</p><p id="m-ativos" class="text-2xl font-bold" style="color:#0B3B60">0</p></div>
+        <div class="bg-white p-4 rounded-2xl" style="border:1px solid #F1F5F9"><p class="text-xs font-medium mb-1" style="color:#64748B">Contemplados</p><p id="m-contem" class="text-2xl font-bold" style="color:#0B3B60">0</p></div>
+        <div class="bg-white p-4 rounded-2xl" style="border:1px solid #F1F5F9"><p class="text-xs font-medium mb-1" style="color:#64748B">Carteira</p><p id="m-cart" class="text-base font-bold" style="color:#0B3B60">R$ 0</p></div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl" style="border:1px solid #F1F5F9">
+        <h3 class="font-bold mb-3" style="color:#0B3B60">Próximas Assembleias</h3>
+        <div id="m-assembleias"></div>
+      </div>
+    </div>
+
+    <div id="at-clientes" class="atab-panel hide">
+      <div class="flex justify-between items-center mb-3 gap-3 flex-wrap">
+        <input type="text" id="busca-cli" placeholder="Buscar..." class="inp" style="max-width:400px">
+        <button id="btn-novo-cli" class="btn-primary" style="width:auto;padding:12px 20px;font-size:14px">+ Novo Cliente</button>
+      </div>
+      <div id="lista-cli" class="space-y-3"></div>
+    </div>
+
+    <div id="at-avisos" class="atab-panel hide">
+      <div class="bg-white p-5 rounded-2xl mb-4" style="border:1px solid #F1F5F9">
+        <h3 class="font-bold mb-3" style="color:#0B3B60">Criar Novo Aviso</h3>
+        <form id="form-aviso" class="space-y-3">
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">Título</label><input type="text" id="av-titulo" required class="inp mt-1"></div>
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">Mensagem</label><textarea id="av-msg" required class="inp mt-1" rows="3"></textarea></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-xs font-bold uppercase" style="color:#64748B">Destinatário</label>
+              <select id="av-dest" class="inp mt-1">
+                <option value="todos">Todos os clientes</option>
+                <option value="especifico">Cliente específico</option>
+              </select>
+            </div>
+            <div><label class="text-xs font-bold uppercase" style="color:#64748B">Prioridade</label>
+              <select id="av-prio" class="inp mt-1">
+                <option value="info">Informativo</option>
+                <option value="importante">Importante</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
+          </div>
+          <div id="av-cliente-wrap" class="hide"><label class="text-xs font-bold uppercase" style="color:#64748B">Cliente</label><select id="av-cliente" class="inp mt-1"></select></div>
+          <button type="submit" class="btn-primary">Publicar Aviso</button>
+        </form>
+      </div>
+      <div class="bg-white p-5 rounded-2xl" style="border:1px solid #F1F5F9"><h3 class="font-bold mb-3" style="color:#0B3B60">Avisos Publicados</h3><div id="lista-avisos"></div></div>
+    </div>
+
+    <div id="at-config" class="atab-panel hide">
+      <div class="bg-white p-5 rounded-2xl mb-4" style="border:1px solid #F1F5F9">
+        <h3 class="font-bold mb-4" style="color:#0B3B60">💳 Configuração PIX (fallback)</h3>
+        <form id="form-pix" class="space-y-3">
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">Chave PIX</label><input type="text" id="pix-chave" class="inp mt-1"></div>
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">Nome do Beneficiário</label><input type="text" id="pix-nome" class="inp mt-1"></div>
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">Cidade</label><input type="text" id="pix-cidade" class="inp mt-1"></div>
+          <button type="submit" class="btn-primary">💾 Salvar</button>
+        </form>
+      </div>
+      <div class="bg-white p-5 rounded-2xl" style="border:1px solid #F1F5F9">
+        <h3 class="font-bold mb-3" style="color:#0B3B60">👤 Credenciais do Administrador</h3>
+        <form id="form-admin-creds" class="space-y-3">
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">E-mail</label><input type="email" id="adm-novo-email" class="inp mt-1"></div>
+          <div><label class="text-xs font-bold uppercase" style="color:#64748B">Nova Senha</label><input type="text" id="adm-nova-senha" class="inp mt-1" placeholder="Deixe vazio para não alterar"></div>
+          <button type="submit" class="btn-primary" style="background:#0B3B60">Atualizar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-cliente" class="hide max-w-md mx-auto px-4 pt-4 pb-24">
+    <div id="cli-content"></div>
+  </div>
+
+  <div id="tab-bar" class="tab-bar hide">
+    <button class="tab-item active" data-tab="inicio"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span>Início</span></button>
+    <button class="tab-item" data-tab="parcelas"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Parcelas</span></button>
+    <button class="tab-item" data-tab="assembleias"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>Assembleias</span></button>
+    <button class="tab-item" data-tab="avisos"><div class="tab-icon" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span id="notif-dot" class="notice-dot hide"></span></div><span>Avisos</span></button>
+    <button class="tab-item" data-tab="perfil"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span>Perfil</span></button>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+'use strict';
+
+var CONFIG = {
+  SUPABASE_URL: 'https://ymzgmttvtyvcpbdxsktk.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_MLHfzM08SUfGrffiuiFjiw_q2F2F3w4',
+  BACKEND_URL: 'https://uniao-next-crm.vercel.app'
+};
+
+var db = null;
+var data = { clients: [], notices: [], settings: {} };
+var session = null;
+var currentClientTab = 'inicio';
+
+function initSupabase(){
+  if(typeof supabase === 'undefined'){ console.error('SDK nao carregado'); return false; }
+  try{ db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY); return true; }
+  catch(e){ console.error(e); return false; }
+}
+function $(id){ return document.getElementById(id); }
+function brl(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0); }
+function dt(s){ if(!s) return '--'; var p = String(s).split('T')[0].split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+
+function showToast(msg, type){
+  type = type || 'info';
+  var colors = {info:'#0B3B60',success:'#16A34A',error:'#DC2626',warning:'#F59E0B'};
+  var old = document.querySelector('.toast'); if(old) old.remove();
+  var t = document.createElement('div');
+  t.className = 'toast'; t.style.background = colors[type] || colors.info; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.transition = 'opacity .3s,transform .3s'; t.style.opacity = '0'; setTimeout(function(){ t.remove(); }, 300); }, 3000);
+}
+
+function openModal(content, centered){
+  var root = $('modal-root'); root.innerHTML = '';
+  var bg = document.createElement('div');
+  bg.className = 'modal-bg' + (centered ? ' center' : '');
+  var modal = document.createElement('div');
+  modal.className = 'modal' + (centered ? ' fade' : ' slide-up');
+  modal.innerHTML = content;
+  bg.appendChild(modal);
+  bg.addEventListener('click', function(e){ if(e.target === bg) closeModal(); });
+  root.appendChild(bg);
+  return modal;
+}
+function closeModal(){ $('modal-root').innerHTML = ''; }
+window.closeModal = closeModal;
+
+async function loadFromSupabase(){
+  if(!db){ showToast('Banco nao configurado','error'); return false; }
+  try{
+    var r1 = await db.from('clients').select('*').order('created_at', { ascending: false });
+    if(r1.error) throw r1.error;
+    var r2 = await db.from('notices').select('*').order('created_at', { ascending: false });
+    if(r2.error) throw r2.error;
+    var r3 = await db.from('settings').select('*').eq('id', 1).maybeSingle();
+    if(r3.error && r3.error.code !== 'PGRST116') throw r3.error;
+
+    data.clients = (r1.data || []).map(function(c){
+      return {
+        id: c.id, name: c.name || '', cpf: c.cpf || '', rg: c.rg || '',
+        birthDate: c.birth_date || '', phone: c.phone || '', email: c.email || '',
+        address: c.address || {street:'',number:'',complement:'',city:'',state:'',zip:''},
+        group: c.group_number || '', quota: c.quota || '',
+        contractNumber: c.contract_number || '', contractDate: c.contract_date || '',
+        totalValue: Number(c.total_value) || 0,
+        installmentValue: Number(c.installment_value) || 0,
+        totalMonths: c.total_months || 100,
+        paidInstallments: c.paid_installments || 0,
+        status: c.status || 'Ativo',
+        assemblyDate: c.assembly_date || '',
+        averageBid: Number(c.average_bid) || 0,
+        installments: c.installments || [],
+        bids: c.bids || []
+      };
+    });
+    data.notices = (r2.data || []).map(function(n){
+      return { id: n.id, title: n.title, message: n.message, priority: n.priority || 'info', target: n.target || 'todos', clientId: n.client_id, createdAt: n.created_at };
+    });
+    var s = r3.data;
+    data.settings = s ? {
+      pixKey: s.pix_key || '', pixKeyType: s.pix_key_type || 'email',
+      pixName: s.pix_name || '', pixCity: s.pix_city || '',
+      adminEmail: s.admin_email || 'admin@uniaonext.com',
+      adminPassword: s.admin_password_hash || 'admin123'
+    } : { pixKey: '', pixKeyType: 'email', pixName: '', pixCity: '', adminEmail: 'admin@uniaonext.com', adminPassword: 'admin123' };
+    return true;
+  }catch(err){
+    console.error('Erro Supabase:', err);
+    showToast('Erro ao conectar: ' + (err.message||''), 'error');
+    return false;
+  }
+}
+
+async function saveClient(client){
+  var payload = {
+    name: client.name, cpf: client.cpf, rg: client.rg,
+    birth_date: client.birthDate || null, phone: client.phone, email: client.email,
+    address: client.address || {},
+    group_number: client.group, quota: client.quota,
+    contract_number: client.contractNumber, contract_date: client.contractDate || null,
+    total_value: client.totalValue, installment_value: client.installmentValue,
+    total_months: client.totalMonths, paid_installments: client.paidInstallments,
+    status: client.status, assembly_date: client.assemblyDate || null,
+    average_bid: client.averageBid,
+    installments: client.installments || [], bids: client.bids || [],
+    updated_at: new Date().toISOString()
+  };
+  if(client.id && typeof client.id === 'string' && client.id.indexOf('-') !== -1){
+    var r = await db.from('clients').update(payload).eq('id', client.id).select().single();
+    if(r.error) throw r.error;
+    return r.data.id;
+  } else {
+    var r2 = await db.from('clients').insert(payload).select().single();
+    if(r2.error) throw r2.error;
+    return r2.data.id;
+  }
+}
+async function deleteClientDB(id){ var r = await db.from('clients').delete().eq('id', id); if(r.error) throw r.error; }
+async function saveNoticeDB(n){
+  var r = await db.from('notices').insert({ title: n.title, message: n.message, priority: n.priority, target: n.target, client_id: n.clientId || null }).select().single();
+  if(r.error) throw r.error;
+  return r.data;
+}
+async function deleteNoticeDB(id){ var r = await db.from('notices').delete().eq('id', id); if(r.error) throw r.error; }
+async function saveSettingsDB(s){
+  var r = await db.from('settings').update({ pix_key: s.pixKey, pix_name: s.pixName, pix_city: s.pixCity, admin_email: s.adminEmail, updated_at: new Date().toISOString() }).eq('id', 1);
+  if(r.error) throw r.error;
+}
+
+function crc16(str){
+  var crc = 0xFFFF;
+  for(var i = 0; i < str.length; i++){
+    crc ^= str.charCodeAt(i) << 8;
+    for(var j = 0; j < 8; j++){
+      crc = ((crc & 0x8000) !== 0) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,'0');
+}
+function tag(id, val){ val = String(val); return id + val.length.toString().padStart(2,'0') + val; }
+function removeAccents(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s.,\-]/g,''); }
+function generatePixLocal(s){
+  var name = removeAccents(s.name || '').substring(0,25).toUpperCase();
+  var city = removeAccents(s.city || '').substring(0,15).toUpperCase();
+  var amt = s.amount ? s.amount.toFixed(2) : '';
+  var txid = (s.txid || '***').substring(0,25).replace(/[^A-Za-z0-9]/g,'');
+  var payload = '';
+  payload += tag('00','01');
+  payload += tag('26', tag('00','br.gov.bcb.pix') + tag('01', s.key));
+  payload += tag('52','0000');
+  payload += tag('53','986');
+  if(amt) payload += tag('54', amt);
+  payload += tag('58','BR');
+  payload += tag('59', name);
+  payload += tag('60', city);
+  payload += tag('62', tag('05', txid));
+  payload += '6304';
+  return payload + crc16(payload);
+}
+
+async function createChargeViaWorkPix(client, installment){
+  if(!CONFIG.BACKEND_URL) return null;
+  var resp = await fetch(CONFIG.BACKEND_URL.replace(/\/$/,'') + '/api/create-charge', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      amount: Math.round(installment.value * 100),
+      external_id: 'PARC-' + installment.number + '-' + String(client.id).slice(0,8),
+      description: 'Parcela ' + installment.number + ' - Grupo ' + client.group + ' Cota ' + client.quota,
+      client_id: client.id,
+      installment_number: installment.number
+    })
+  });
+  if(!resp.ok){
+    var err = await resp.json().catch(function(){ return {error:{message:'Erro'}}; });
+    throw new Error((err.error && err.error.message) || 'Erro ao criar cobranca');
+  }
+  return await resp.json();
+}
+
+var SCREENS = ['s-welcome','s-cliente-login','s-admin-login','s-app'];
+function showScreen(id){
+  SCREENS.forEach(function(s){ var el = $(s); if(el) el.classList.add('hide'); });
+  var el = $(id); if(el) el.classList.remove('hide');
+  window.scrollTo(0,0);
+}
+
+function renderAdmin(){
+  $('m-total').textContent = data.clients.length;
+  $('m-ativos').textContent = data.clients.filter(function(c){return c.status === 'Ativo';}).length;
+  $('m-contem').textContent = data.clients.filter(function(c){return c.status === 'Contemplado';}).length;
+  var tot = data.clients.reduce(function(s,c){return s + (c.totalValue||0);}, 0);
+  $('m-cart').textContent = brl(tot);
+
+  var ass = data.clients.filter(function(c){return c.status === 'Ativo';})
+    .map(function(c){return {name:c.name, date:c.assemblyDate, group:c.group};})
+    .filter(function(a){return a.date;})
+    .sort(function(a,b){return a.date.localeCompare(b.date);})
+    .slice(0,5);
+  var assHtml = ass.length === 0 ? '<p class="text-sm" style="color:#64748B">Nenhuma assembleia agendada.</p>' : '';
+  ass.forEach(function(a){
+    assHtml += '<div class="flex justify-between items-center py-2" style="border-bottom:1px solid #F1F5F9"><div><p class="font-semibold text-sm" style="color:#0B3B60">'+a.name+'</p><p class="text-xs" style="color:#64748B">Grupo '+a.group+'</p></div><p class="font-bold text-sm" style="color:#1A9C63">'+dt(a.date)+'</p></div>';
+  });
+  $('m-assembleias').innerHTML = assHtml;
+  renderClientList(); renderAvisosList(); renderSettings(); populateClientSelect();
+}
+
+function renderClientList(){
+  var list = $('lista-cli');
+  var search = ($('busca-cli').value || '').toLowerCase();
+  var filtered = data.clients.filter(function(c){
+    return c.name.toLowerCase().indexOf(search) !== -1 ||
+      String(c.group).toLowerCase().indexOf(search) !== -1 ||
+      String(c.quota).toLowerCase().indexOf(search) !== -1;
+  });
+  if(filtered.length === 0){ list.innerHTML = '<p class="text-center py-8 text-sm" style="color:#64748B">Nenhum cliente encontrado.</p>'; return; }
+  var html = '';
+  filtered.forEach(function(c){
+    var stClass = c.status === 'Ativo' ? 'st-ativo' : c.status === 'Contemplado' ? 'st-contem' : 'st-canc';
+    html += '<div class="bg-white p-4 rounded-2xl" style="border:1px solid #F1F5F9">';
+    html += '<div class="flex items-center gap-3 mb-3"><div class="w-11 h-11 rounded-full grad flex items-center justify-center text-white font-bold shrink-0">'+c.name.charAt(0).toUpperCase()+'</div>';
+    html += '<div class="flex-1 min-w-0"><h4 class="font-bold text-sm truncate" style="color:#0B3B60">'+c.name+'</h4><p class="text-xs" style="color:#64748B">'+c.cpf+'</p></div>';
+    html += '<span class="text-[10px] font-bold px-2 py-1 rounded-full '+stClass+'">'+c.status+'</span></div>';
+    html += '<div class="grid grid-cols-3 gap-2 mb-3">';
+    html += '<div style="background:#EFF6FF;padding:6px;border-radius:8px;text-align:center"><p class="text-[9px] font-bold uppercase" style="color:#64748B">Grupo</p><p class="text-sm font-bold" style="color:#1E40AF">'+c.group+'</p></div>';
+    html += '<div style="background:#F0FDF4;padding:6px;border-radius:8px;text-align:center"><p class="text-[9px] font-bold uppercase" style="color:#64748B">Cota</p><p class="text-sm font-bold" style="color:#166534">'+c.quota+'</p></div>';
+    html += '<div style="background:#FEF3C7;padding:6px;border-radius:8px;text-align:center"><p class="text-[9px] font-bold uppercase" style="color:#64748B">Parcelas</p><p class="text-sm font-bold" style="color:#854D0E">'+c.paidInstallments+'/'+c.totalMonths+'</p></div></div>';
+    html += '<div class="flex gap-2">';
+    html += '<button class="btn-sec flex-1" style="padding:10px;font-size:12px" data-edit="'+c.id+'">✏️ Editar</button>';
+    html += '<button class="btn-sec flex-1" style="padding:10px;font-size:12px" data-parc="'+c.id+'">📋 Parcelas</button>';
+    html += '<button class="btn-sec" style="padding:10px;font-size:12px;color:#DC2626;border-color:#FECACA" data-del="'+c.id+'">🗑️</button></div></div>';
+  });
+  list.innerHTML = html;
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openClientModal(b.dataset.edit); }); });
+  list.querySelectorAll('[data-parc]').forEach(function(b){ b.addEventListener('click', function(){ openParcelasModal(b.dataset.parc); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ confirmDeleteClient(b.dataset.del); }); });
+}
+
+async function confirmDeleteClient(id){
+  var c = data.clients.find(function(x){return x.id === id;});
+  if(!confirm('Excluir ' + c.name + '?')) return;
+  try{ await deleteClientDB(id); await loadFromSupabase(); renderAdmin(); showToast('Cliente excluido','success'); }
+  catch(e){ showToast('Erro: ' + e.message, 'error'); }
+}
+
+function renderAvisosList(){
+  var list = $('lista-avisos');
+  if(data.notices.length === 0){ list.innerHTML = '<p class="text-sm" style="color:#64748B">Nenhum aviso publicado.</p>'; return; }
+  var html = '';
+  data.notices.forEach(function(n){
+    var prioColor = n.priority === 'urgente' ? '#DC2626' : n.priority === 'importante' ? '#F59E0B' : '#1A9C63';
+    var prioLabel = n.priority === 'urgente' ? '🚨 URGENTE' : n.priority === 'importante' ? '⚠️ IMPORTANTE' : 'ℹ️ INFO';
+    html += '<div class="p-3 rounded-xl mb-2" style="background:#F8FAFC;border-left:3px solid '+prioColor+'">';
+    html += '<div class="flex justify-between items-start gap-2 mb-1"><div><p class="font-bold text-sm" style="color:#0B3B60">'+n.title+'</p>';
+    html += '<p class="text-[10px] font-bold" style="color:'+prioColor+'">'+prioLabel+' • '+(n.target === 'todos' ? 'Todos' : 'Especifico')+'</p></div>';
+    html += '<button data-delnotice="'+n.id+'" style="color:#DC2626;font-size:11px;background:none;border:none;cursor:pointer">✕</button></div>';
+    html += '<p class="text-xs mt-1" style="color:#475569">'+n.message+'</p></div>';
+  });
+  list.innerHTML = html;
+  list.querySelectorAll('[data-delnotice]').forEach(function(b){
+    b.addEventListener('click', async function(){
+      if(!confirm('Excluir aviso?')) return;
+      try{ await deleteNoticeDB(b.dataset.delnotice); await loadFromSupabase(); renderAvisosList(); showToast('Aviso excluido','success'); }
+      catch(e){ showToast('Erro: '+e.message,'error'); }
+    });
+  });
+}
+
+function renderSettings(){
+  $('pix-chave').value = data.settings.pixKey || '';
+  $('pix-nome').value = data.settings.pixName || '';
+  $('pix-cidade').value = data.settings.pixCity || '';
+  $('adm-novo-email').value = data.settings.adminEmail || '';
+}
+
+async function openClientModal(id){
+  var c = id ? data.clients.find(function(x){return x.id === id;}) : null;
+  var isEdit = !!c;
+  var client = c || {
+    id: null, name:'', cpf:'', rg:'', birthDate:'', phone:'', email:'',
+    address:{street:'',number:'',complement:'',city:'',state:'',zip:''},
+    group:'', quota:'', contractNumber:'', contractDate: new Date().toISOString().split('T')[0],
+    totalValue:0, installmentValue:0, totalMonths:100, paidInstallments:0,
+    status:'Ativo', assemblyDate:'', averageBid:0, installments:[], bids:[]
+  };
+  var html = '';
+  html += '<div style="padding:20px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;background:#fff;z-index:10;display:flex;justify-content:space-between;align-items:center">';
+  html += '<h3 style="font-weight:800;font-size:18px;color:#0B3B60">'+(isEdit?'Editar Cliente':'Novo Cliente')+'</h3>';
+  html += '<button onclick="closeModal()" style="background:#F1F5F9;border:none;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer">✕</button></div>';
+  html += '<form id="modal-form" style="padding:20px">';
+  html += '<div style="margin-bottom:16px"><h4 style="font-size:11px;font-weight:800;text-transform:uppercase;color:#64748B;margin-bottom:10px">👤 Dados Pessoais</h4><div style="display:grid;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Nome Completo</label><input name="name" required value="'+client.name+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">CPF</label><input name="cpf" value="'+client.cpf+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">RG</label><input name="rg" value="'+client.rg+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Nascimento</label><input type="date" name="birthDate" value="'+client.birthDate+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Telefone</label><input name="phone" value="'+client.phone+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">E-mail</label><input type="email" name="email" value="'+client.email+'" class="inp" style="margin-top:4px"></div></div></div>';
+  html += '<div style="margin-bottom:16px"><h4 style="font-size:11px;font-weight:800;text-transform:uppercase;color:#64748B;margin-bottom:10px">📍 Endereco</h4><div style="display:grid;gap:10px">';
+  html += '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Rua</label><input name="street" value="'+(client.address.street||'')+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Numero</label><input name="number" value="'+(client.address.number||'')+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Complemento</label><input name="complement" value="'+(client.address.complement||'')+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Cidade</label><input name="city" value="'+(client.address.city||'')+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">UF</label><input name="state" value="'+(client.address.state||'')+'" maxlength="2" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">CEP</label><input name="zip" value="'+(client.address.zip||'')+'" class="inp" style="margin-top:4px"></div></div></div></div>';
+  html += '<div style="margin-bottom:16px"><h4 style="font-size:11px;font-weight:800;text-transform:uppercase;color:#64748B;margin-bottom:10px">📋 Contrato</h4><div style="display:grid;gap:10px">';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Grupo</label><input name="group" required value="'+client.group+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Cota</label><input name="quota" required value="'+client.quota+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">N Contrato</label><input name="contractNumber" value="'+client.contractNumber+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Data Contrato</label><input type="date" name="contractDate" required value="'+client.contractDate+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Valor Total (R$)</label><input type="number" step="0.01" name="totalValue" required value="'+client.totalValue+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Valor Parcela (R$)</label><input type="number" step="0.01" name="installmentValue" required value="'+client.installmentValue+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Total Meses</label><input type="number" name="totalMonths" required value="'+client.totalMonths+'" class="inp" style="margin-top:4px"></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Pagas</label><input type="number" name="paidInstallments" required value="'+client.paidInstallments+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Status</label><select name="status" class="inp" style="margin-top:4px">';
+  ['Ativo','Contemplado','Cancelado'].forEach(function(s){ html += '<option value="'+s+'"'+(client.status===s?' selected':'')+'>'+s+'</option>'; });
+  html += '</select></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Media Lances</label><input type="number" step="0.01" name="averageBid" value="'+client.averageBid+'" class="inp" style="margin-top:4px"></div></div>';
+  html += '<div><label style="font-size:11px;font-weight:700;color:#64748B">Prox. Assembleia</label><input type="date" name="assemblyDate" value="'+client.assemblyDate+'" class="inp" style="margin-top:4px"></div></div></div>';
+  html += '<button type="submit" id="modal-submit" class="btn-primary" style="margin-top:8px">💾 Salvar Cliente</button></form>';
+  openModal(html);
+
+  $('modal-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = $('modal-submit'); btn.disabled = true; btn.textContent = 'Salvando...';
+    var fd = new FormData(e.target);
+    var obj = {
+      id: client.id, name: fd.get('name'), cpf: fd.get('cpf'), rg: fd.get('rg'),
+      birthDate: fd.get('birthDate'), phone: fd.get('phone'), email: fd.get('email'),
+      address: {street:fd.get('street'),number:fd.get('number'),complement:fd.get('complement'),city:fd.get('city'),state:fd.get('state'),zip:fd.get('zip')},
+      group: fd.get('group'), quota: fd.get('quota'),
+      contractNumber: fd.get('contractNumber'), contractDate: fd.get('contractDate'),
+      totalValue: parseFloat(fd.get('totalValue')) || 0,
+      installmentValue: parseFloat(fd.get('installmentValue')) || 0,
+      totalMonths: parseInt(fd.get('totalMonths')) || 0,
+      paidInstallments: parseInt(fd.get('paidInstallments')) || 0,
+      status: fd.get('status'), assemblyDate: fd.get('assemblyDate'),
+      averageBid: parseFloat(fd.get('averageBid')) || 0,
+      installments: client.installments || [], bids: client.bids || []
+    };
+    if(!obj.installments || obj.installments.length !== obj.totalMonths){
+      obj.installments = generateInstallmentsArray(obj);
+    }
+    try{
+      await saveClient(obj);
+      await loadFromSupabase();
+      closeModal(); renderAdmin();
+      showToast(isEdit ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
+    }catch(err){
+      showToast('Erro: ' + err.message, 'error');
+      btn.disabled = false; btn.textContent = '💾 Salvar Cliente';
+    }
+  });
+}
+
+function generateInstallmentsArray(c){
+  var arr = [];
+  var start = new Date(c.contractDate);
+  for(var i = 1; i <= c.totalMonths; i++){
+    var d = new Date(start.getFullYear(), start.getMonth() + i, 10);
+    var status = i <= c.paidInstallments ? 'Pago' : 'Pendente';
+    if(status === 'Pendente' && d < new Date() && i === c.paidInstallments + 1) status = 'Atrasado';
+    arr.push({ number: i, dueDate: d.toISOString().split('T')[0], value: c.installmentValue, status: status, paidDate: status === 'Pago' ? new Date(d.getTime() - 86400000*3).toISOString().split('T')[0] : null });
+  }
+  return arr;
+}
+
+function openParcelasModal(id){
+  var c = data.clients.find(function(x){return x.id === id;});
+  if(!c) return;
+  var html = '';
+  html += '<div style="padding:20px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;background:#fff;z-index:10;display:flex;justify-content:space-between;align-items:center">';
+  html += '<div><h3 style="font-weight:800;font-size:18px;color:#0B3B60">Gerenciar Parcelas</h3><p style="font-size:12px;color:#64748B">'+c.name+' • G'+c.group+' C'+c.quota+'</p></div>';
+  html += '<button onclick="closeModal()" style="background:#F1F5F9;border:none;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer">✕</button></div>';
+  html += '<div style="padding:20px"><div style="background:#F8FAFC;padding:12px;border-radius:12px;margin-bottom:16px"><p style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase">Progresso</p><p style="font-size:20px;font-weight:800;color:#0B3B60">'+c.paidInstallments+' / '+c.totalMonths+'</p></div>';
+  html += '<div style="max-height:400px;overflow-y:auto">';
+  c.installments.forEach(function(inst){
+    var stClass = inst.status === 'Pago' ? 'st-pago' : inst.status === 'Atrasado' ? 'st-atras' : 'st-pend';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;background:#F8FAFC;margin-bottom:6px">';
+    html += '<div><p style="font-weight:700;font-size:13px;color:#0B3B60">Parcela '+inst.number+'</p><p style="font-size:11px;color:#64748B">Vence: '+dt(inst.dueDate)+' • '+brl(inst.value)+'</p></div>';
+    html += '<div style="display:flex;align-items:center;gap:6px"><span class="'+stClass+'" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px">'+inst.status+'</span>';
+    html += '<button data-toggle="'+inst.number+'" style="background:'+(inst.status === 'Pago'?'#DC2626':'#1A9C63')+';color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">'+(inst.status === 'Pago'?'Desfazer':'Marcar Paga')+'</button></div></div>';
+  });
+  html += '</div></div>';
+  var modal = openModal(html);
+  modal.querySelectorAll('[data-toggle]').forEach(function(b){
+    b.addEventListener('click', async function(){
+      var num = parseInt(b.dataset.toggle);
+      var inst = c.installments.find(function(x){return x.number === num;});
+      if(inst.status === 'Pago'){ inst.status = 'Pendente'; inst.paidDate = null; c.paidInstallments = Math.max(0, c.paidInstallments - 1); }
+      else { inst.status = 'Pago'; inst.paidDate = new Date().toISOString().split('T')[0]; c.paidInstallments = Math.min(c.totalMonths, c.paidInstallments + 1); }
+      try{ await saveClient(c); await loadFromSupabase(); closeModal(); openParcelasModal(id); renderAdmin(); showToast('Parcela atualizada','success'); }
+      catch(e){ showToast('Erro: ' + e.message,'error'); }
+    });
+  });
+}
+
+function renderClient(){
+  var c = data.clients.find(function(x){return x.id === session.clientId;});
+  if(!c){ showToast('Cliente nao encontrado','error'); return; }
+  var el = $('cli-content');
+  if(currentClientTab === 'inicio') el.innerHTML = renderInicio(c);
+  else if(currentClientTab === 'parcelas') el.innerHTML = renderParcelas(c);
+  else if(currentClientTab === 'assembleias') el.innerHTML = renderAssembleias(c);
+  else if(currentClientTab === 'avisos') el.innerHTML = renderAvisosCliente(c);
+  else if(currentClientTab === 'perfil') el.innerHTML = renderPerfil(c);
+  bindClientEvents(c);
+}
+
+function renderInicio(c){
+  var progress = Math.min((c.paidInstallments / c.totalMonths) * 100, 100);
+  var remaining = c.totalMonths - c.paidInstallments;
+  var stIcon = c.status === 'Contemplado' ? '🏆' : c.status === 'Cancelado' ? '❌' : '✅';
+  var nextInst = c.installments.find(function(i){return i.status !== 'Pago';});
+  var h = '';
+  h += '<div class="grad rounded-3xl p-6 text-white mb-4 fade" style="position:relative;overflow:hidden">';
+  h += '<div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,.05);border-radius:50%"></div>';
+  h += '<div style="position:relative;z-index:1"><p style="font-size:13px;opacity:.85">Bem-vindo(a),</p>';
+  h += '<h2 style="font-size:22px;font-weight:800;margin:4px 0 12px">'+c.name.split(' ')[0]+'</h2>';
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+  h += '<div style="background:rgba(255,255,255,.15);padding:6px 12px;border-radius:10px"><p style="font-size:9px;opacity:.85;text-transform:uppercase">Grupo</p><p style="font-size:14px;font-weight:800">'+c.group+'</p></div>';
+  h += '<div style="background:rgba(255,255,255,.15);padding:6px 12px;border-radius:10px"><p style="font-size:9px;opacity:.85;text-transform:uppercase">Cota</p><p style="font-size:14px;font-weight:800">'+c.quota+'</p></div>';
+  h += '<div style="background:rgba(255,255,255,.15);padding:6px 12px;border-radius:10px"><p style="font-size:9px;opacity:.85;text-transform:uppercase">Status</p><p style="font-size:14px;font-weight:800">'+stIcon+' '+c.status+'</p></div>';
+  h += '</div></div></div>';
+  if(nextInst){
+    h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+    h += '<div><p style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase">Proxima Parcela</p>';
+    h += '<p style="font-size:24px;font-weight:800;color:#0B3B60;margin-top:2px">'+brl(nextInst.value)+'</p>';
+    h += '<p style="font-size:12px;color:#64748B;margin-top:2px">Vencimento: '+dt(nextInst.dueDate)+'</p></div>';
+    h += '<div style="width:56px;height:56px;border-radius:16px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:24px">📅</div></div>';
+    h += '<button class="btn-primary" data-pixpay="'+nextInst.number+'">💳 Pagar com PIX</button></div>';
+  }
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px"><div>';
+  h += '<p style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase">Progresso do Plano</p>';
+  h += '<p style="font-size:22px;font-weight:800;color:#0B3B60;margin-top:2px">'+c.paidInstallments+'<span style="font-size:14px;font-weight:500;color:#64748B"> / '+c.totalMonths+' meses</span></p></div>';
+  h += '<p style="font-size:16px;font-weight:800;color:#1A9C63">'+progress.toFixed(0)+'%</p></div>';
+  h += '<div class="progress-bar"><div style="width:'+progress+'%"></div></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">';
+  h += '<div style="background:#F8FAFC;padding:10px;border-radius:12px"><p style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase">Restantes</p><p style="font-size:14px;font-weight:800;color:#0B3B60;margin-top:2px">'+remaining+' meses</p></div>';
+  h += '<div style="background:#F8FAFC;padding:10px;border-radius:12px"><p style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase">Mensalidade</p><p style="font-size:14px;font-weight:800;color:#0B3B60;margin-top:2px">'+brl(c.installmentValue)+'</p></div></div></div>';
+  h += '<div class="fade" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
+  h += '<div class="bg-white rounded-2xl p-4" style="border:1px solid #F1F5F9"><div style="width:32px;height:32px;border-radius:10px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:6px">📅</div><p style="font-size:11px;color:#64748B">Prox. Assembleia</p><p style="font-size:13px;font-weight:700;color:#0B3B60">'+dt(c.assemblyDate)+'</p></div>';
+  h += '<div class="bg-white rounded-2xl p-4" style="border:1px solid #F1F5F9"><div style="width:32px;height:32px;border-radius:10px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;margin-bottom:6px">📈</div><p style="font-size:11px;color:#64748B">Media de Lances</p><p style="font-size:13px;font-weight:700;color:#0B3B60">'+brl(c.averageBid)+'</p></div></div>';
+  var clientNotices = data.notices.filter(function(n){ return n.target === 'todos' || n.clientId === c.id; }).slice(0,2);
+  if(clientNotices.length > 0){
+    h += '<div class="bg-white rounded-2xl p-5 fade" style="border:1px solid #F1F5F9"><p style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;margin-bottom:10px">📢 Ultimos Avisos</p>';
+    clientNotices.forEach(function(n){
+      var prioColor = n.priority === 'urgente' ? '#DC2626' : n.priority === 'importante' ? '#F59E0B' : '#1A9C63';
+      h += '<div style="padding:10px;border-left:3px solid '+prioColor+';background:#F8FAFC;border-radius:8px;margin-bottom:6px"><p style="font-size:13px;font-weight:700;color:#0B3B60">'+n.title+'</p><p style="font-size:11px;color:#475569;margin-top:2px">'+n.message+'</p></div>';
+    });
+    h += '</div>';
+  }
+  return h;
+}
+
+function renderParcelas(c){
+  var pagas = c.installments.filter(function(i){return i.status === 'Pago';}).length;
+  var abertas = c.installments.filter(function(i){return i.status !== 'Pago';}).length;
+  var totalPago = c.installments.filter(function(i){return i.status === 'Pago';}).reduce(function(s,i){return s + i.value;}, 0);
+  var h = '';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><h2 style="font-size:18px;font-weight:800;color:#0B3B60;margin-bottom:12px">Minhas Parcelas</h2>';
+  h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
+  h += '<div style="background:#DCFCE7;padding:10px;border-radius:12px;text-align:center"><p style="font-size:10px;font-weight:700;color:#166534;text-transform:uppercase">Pagas</p><p style="font-size:18px;font-weight:800;color:#166534;margin-top:2px">'+pagas+'</p></div>';
+  h += '<div style="background:#FEF9C3;padding:10px;border-radius:12px;text-align:center"><p style="font-size:10px;font-weight:700;color:#854D0E;text-transform:uppercase">Abertas</p><p style="font-size:18px;font-weight:800;color:#854D0E;margin-top:2px">'+abertas+'</p></div>';
+  h += '<div style="background:#EFF6FF;padding:10px;border-radius:12px;text-align:center"><p style="font-size:10px;font-weight:700;color:#1E40AF;text-transform:uppercase">Pago</p><p style="font-size:13px;font-weight:800;color:#1E40AF;margin-top:4px">'+brl(totalPago)+'</p></div>';
+  h += '</div></div>';
+  h += '<div class="bg-white rounded-2xl p-4 fade" style="border:1px solid #F1F5F9"><p style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;margin-bottom:10px;padding:0 4px">📋 Todas as Parcelas</p><div style="max-height:60vh;overflow-y:auto">';
+  c.installments.forEach(function(inst){
+    var stClass = inst.status === 'Pago' ? 'st-pago' : inst.status === 'Atrasado' ? 'st-atras' : 'st-pend';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:#F8FAFC;margin-bottom:6px">';
+    h += '<div><p style="font-size:13px;font-weight:700;color:#0B3B60">Parcela '+inst.number+'</p><p style="font-size:11px;color:#64748B">Venc: '+dt(inst.dueDate)+' • '+brl(inst.value)+'</p>';
+    if(inst.paidDate) h += '<p style="font-size:10px;color:#166534;margin-top:2px">✓ Pago em '+dt(inst.paidDate)+'</p>';
+    h += '</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="'+stClass+'" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px">'+inst.status+'</span>';
+    if(inst.status !== 'Pago') h += '<button class="btn-primary" data-pixpay="'+inst.number+'" style="padding:6px 10px;font-size:11px;width:auto">💳 PIX</button>';
+    h += '</div></div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+function renderAssembleias(c){
+  var h = '';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
+  h += '<div style="width:48px;height:48px;border-radius:14px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:22px">📅</div>';
+  h += '<div><p style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase">Proxima Assembleia</p><p style="font-size:22px;font-weight:800;color:#0B3B60">'+dt(c.assemblyDate)+'</p></div></div>';
+  h += '<div style="background:#F8FAFC;padding:12px;border-radius:12px">';
+  h += '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;color:#64748B">Grupo</span><span style="font-size:13px;font-weight:700;color:#0B3B60">'+c.group+'</span></div>';
+  h += '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;color:#64748B">Cota</span><span style="font-size:13px;font-weight:700;color:#0B3B60">'+c.quota+'</span></div>';
+  h += '<div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748B">Media de Lances</span><span style="font-size:13px;font-weight:700;color:#1A9C63">'+brl(c.averageBid)+'</span></div></div></div>';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><h3 style="font-size:14px;font-weight:800;color:#0B3B60;margin-bottom:10px">🎯 Simulador de Lance</h3>';
+  h += '<p style="font-size:12px;color:#64748B;margin-bottom:12px">Digite o valor que pretende ofertar.</p>';
+  h += '<input type="number" id="sim-valor" class="inp" placeholder="Ex: 15000" style="margin-bottom:10px">';
+  h += '<button class="btn-primary" data-simular="'+c.id+'">Simular</button><div id="sim-result"></div></div>';
+  h += '<div class="bg-white rounded-2xl p-5 fade" style="border:1px solid #F1F5F9"><h3 style="font-size:14px;font-weight:800;color:#0B3B60;margin-bottom:10px">🏆 Historico de Lances</h3>';
+  if(!c.bids || c.bids.length === 0) h += '<p style="font-size:12px;color:#64748B">Nenhum lance registrado.</p>';
+  else c.bids.forEach(function(b){
+    var stColor = b.status === 'Ganho' ? '#166534' : '#991B1B';
+    var stBg = b.status === 'Ganho' ? '#DCFCE7' : '#FEE2E2';
+    h += '<div style="display:flex;justify-content:space-between;padding:10px;border-radius:10px;background:#F8FAFC;margin-bottom:6px"><div><p style="font-size:13px;font-weight:700;color:#0B3B60">'+brl(b.value)+'</p><p style="font-size:11px;color:#64748B">'+dt(b.date)+' • '+b.type+'</p></div><span style="background:'+stBg+';color:'+stColor+';font-size:10px;font-weight:700;padding:4px 8px;border-radius:99px;height:fit-content">'+b.status+'</span></div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function renderAvisosCliente(c){
+  var clientNotices = data.notices.filter(function(n){ return n.target === 'todos' || n.clientId === c.id; });
+  var h = '<div class="bg-white rounded-2xl p-5 fade" style="border:1px solid #F1F5F9"><h2 style="font-size:18px;font-weight:800;color:#0B3B60;margin-bottom:14px">📢 Avisos</h2>';
+  if(clientNotices.length === 0) h += '<p style="font-size:13px;color:#64748B;text-align:center;padding:20px">Nenhum aviso no momento.</p>';
+  else clientNotices.forEach(function(n){
+    var prioColor = n.priority === 'urgente' ? '#DC2626' : n.priority === 'importante' ? '#F59E0B' : '#1A9C63';
+    var prioIcon = n.priority === 'urgente' ? '🚨' : n.priority === 'importante' ? '⚠️' : 'ℹ️';
+    h += '<div style="padding:14px;border-left:3px solid '+prioColor+';background:#F8FAFC;border-radius:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><p style="font-size:13px;font-weight:700;color:#0B3B60">'+n.title+'</p><span style="font-size:14px">'+prioIcon+'</span></div><p style="font-size:12px;color:#475569;line-height:1.5">'+n.message+'</p><p style="font-size:10px;color:#94A3B8;margin-top:6px">'+new Date(n.createdAt).toLocaleDateString('pt-BR')+'</p></div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function renderPerfil(c){
+  var h = '';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><div style="display:flex;align-items:center;gap:14px">';
+  h += '<div class="grad" style="width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:800">'+c.name.charAt(0).toUpperCase()+'</div>';
+  h += '<div><p style="font-size:17px;font-weight:800;color:#0B3B60">'+c.name+'</p><p style="font-size:12px;color:#64748B">CPF: '+c.cpf+'</p></div></div></div>';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><h3 style="font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:10px">👤 Dados Pessoais</h3>';
+  h += row('Nome', c.name) + row('CPF', c.cpf) + row('RG', c.rg) + row('Nascimento', dt(c.birthDate)) + row('Telefone', c.phone) + row('E-mail', c.email) + '</div>';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><h3 style="font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:10px">📍 Endereco</h3>';
+  h += row('Rua', (c.address.street||'') + ', ' + (c.address.number||''));
+  if(c.address.complement) h += row('Complemento', c.address.complement);
+  h += row('Cidade', (c.address.city||'') + ' - ' + (c.address.state||''));
+  h += row('CEP', c.address.zip) + '</div>';
+  h += '<div class="bg-white rounded-2xl p-5 mb-4 fade" style="border:1px solid #F1F5F9"><h3 style="font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:10px">📋 Contrato</h3>';
+  h += row('N Contrato', c.contractNumber) + row('Data Contrato', dt(c.contractDate)) + row('Grupo', c.group) + row('Cota', c.quota);
+  h += row('Valor da Carta', brl(c.totalValue)) + row('Parcela Mensal', brl(c.installmentValue)) + row('Prazo', c.totalMonths + ' meses') + row('Status', c.status) + '</div>';
+  h += '<div style="background:#FEF9C3;border:1px solid #FDE68A;border-radius:16px;padding:14px;text-align:center" class="fade"><p style="font-size:12px;color:#854D0E;font-weight:600">⚠️ Para alteracoes cadastrais, entre em contato com seu representante.</p></div>';
+  return h;
+}
+function row(l, v){ if(!v) v = '--'; return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F8FAFC"><span style="font-size:12px;color:#64748B">'+l+'</span><span style="font-size:13px;font-weight:600;color:#0B3B60;text-align:right;max-width:60%">'+v+'</span></div>'; }
+
+function bindClientEvents(c){
+  document.querySelectorAll('[data-pixpay]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var num = parseInt(b.dataset.pixpay);
+      var inst = c.installments.find(function(x){return x.number === num;});
+      openPixModal(c, inst);
+    });
+  });
+  var simBtn = document.querySelector('[data-simular]');
+  if(simBtn){
+    simBtn.addEventListener('click', function(){
+      var v = parseFloat($('sim-valor').value);
+      if(!v || v <= 0){ showToast('Digite um valor valido','warning'); return; }
+      var pct = (v / c.totalValue) * 100;
+      var rest = c.totalValue - v;
+      $('sim-result').innerHTML = '<div style="margin-top:12px;background:#F0FDF4;border:1px solid #BBF7D0;padding:14px;border-radius:12px"><p style="font-size:12px;color:#166534;font-weight:700;margin-bottom:6px">📊 Resultado</p><div style="font-size:12px;color:#166534;line-height:1.8">Valor: <b>'+brl(v)+'</b><br>Porcentagem: <b>'+pct.toFixed(2)+'%</b><br>Saldo restante: <b>'+brl(rest)+'</b></div><p style="font-size:10px;color:#166534;margin-top:8px;opacity:.8">A simulacao nao garante contemplacao.</p></div>';
+    });
+  }
+}
+
+async function openPixModal(client, installment){
+  openModal('<div style="padding:40px;text-align:center"><div class="skeleton" style="width:200px;height:200px;margin:0 auto;border-radius:16px"></div><p style="margin-top:16px;color:#64748B;font-size:13px">Gerando cobranca PIX...</p></div>', true);
+
+  try{
+    var pixData = null;
+    var usedWorkPix = false;
+
+    if(CONFIG.BACKEND_URL){
+      try{ pixData = await createChargeViaWorkPix(client, installment); usedWorkPix = true; }
+      catch(err){ console.warn('Falha WorkPix:', err); showToast('Gateway indisponivel. Usando PIX local.', 'warning'); }
+    }
+
+    if(!pixData){
+      var s = data.settings;
+      if(!s.pixKey){
+        openModal('<div style="padding:24px;text-align:center"><p style="font-size:14px;color:#DC2626;font-weight:700;margin-bottom:10px">⚠️ Chave PIX nao configurada</p><p style="font-size:13px;color:#64748B;margin-bottom:16px">Configure no painel admin.</p><button class="btn-primary" onclick="closeModal()">Entendi</button></div>', true);
+        return;
+      }
+      var txid = 'UNIAONEXT' + installment.number + String(client.id).slice(-4);
+      var localPayload = generatePixLocal({ key: s.pixKey, name: s.pixName, city: s.pixCity, amount: installment.value, txid: txid });
+      pixData = { qr_code: localPayload, copy_paste: localPayload, id: null };
+    }
+
+    var copyPaste = pixData.qr_code || pixData.copy_paste;
+    var chargeId = pixData.id;
+
+    var html = '';
+    html += '<div style="padding:20px;border-bottom:1px solid #F1F5F9;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:10">';
+    html += '<div><h3 style="font-weight:800;font-size:17px;color:#0B3B60">💳 Pagamento via PIX</h3>';
+    html += '<p style="font-size:12px;color:#64748B">Parcela '+installment.number+' • '+brl(installment.value)+'</p></div>';
+    html += '<button onclick="closeModal()" style="background:#F1F5F9;border:none;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer">✕</button></div>';
+    html += '<div style="padding:20px;text-align:center">';
+    html += '<div id="pix-qr" style="background:#fff;padding:16px;border-radius:16px;border:1px solid #F1F5F9;display:inline-block;margin-bottom:16px"></div>';
+    html += '<p style="font-size:12px;color:#64748B;margin-bottom:10px">Escaneie o QR Code ou copie o codigo</p>';
+    html += '<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px;text-align:left;margin-bottom:12px">';
+    html += '<p style="font-family:monospace;font-size:10px;word-break:break-all;color:#0B3B60;max-height:80px;overflow-y:auto;line-height:1.4">'+copyPaste+'</p></div>';
+    html += '<button id="copy-pix" class="btn-primary" style="margin-bottom:10px">📋 Copiar Codigo PIX</button>';
+    if(usedWorkPix){
+      html += '<div id="pix-status" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:12px;text-align:left;margin-bottom:10px">';
+      html += '<p style="font-size:11px;color:#1E40AF;font-weight:600">🔄 Aguardando confirmacao...</p></div>';
+    }
+    html += '<div style="background:#FEF9C3;border:1px solid #FDE68A;border-radius:12px;padding:12px;text-align:left">';
+    html += '<p style="font-size:11px;color:#854D0E;font-weight:600">💡 Apos o pagamento, a confirmacao e automatica.</p></div>';
+    html += '</div>';
+    openModal(html, true);
+
+    try{
+      var qr = qrcode(0, 'M');
+      qr.addData(copyPaste);
+      qr.make();
+      $('pix-qr').innerHTML = qr.createSvgTag({cellSize: 5, margin: 2});
+    }catch(e){ $('pix-qr').innerHTML = '<p style="color:#DC2626;font-size:12px">Erro ao gerar QR</p>'; }
+
+    $('copy-pix').addEventListener('click', function(){
+      navigator.clipboard.writeText(copyPaste).then(function(){ showToast('✅ Codigo copiado!','success'); }).catch(function(){
+        var ta = document.createElement('textarea');
+        ta.value = copyPaste;
+        document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); ta.remove();
+        showToast('✅ Codigo copiado!','success');
+      });
+    });
+
+    if(usedWorkPix && chargeId){
+      var poll = setInterval(async function(){
+        try{
+          var r = await fetch(CONFIG.BACKEND_URL.replace(/\/$/,'') + '/api/check-charge?id=' + chargeId);
+          var j = await r.json();
+          if(j.status === 'paid'){
+            clearInterval(poll);
+            await loadFromSupabase();
+            closeModal(); renderClient();
+            showToast('✅ Pagamento confirmado!','success');
+          }
+        }catch(e){}
+      }, 5000);
+      setTimeout(function(){ clearInterval(poll); }, 900000);
+    }
+  }catch(err){
+    console.error(err);
+    openModal('<div style="padding:24px;text-align:center"><p style="font-size:14px;color:#DC2626;font-weight:700;margin-bottom:10px">Erro ao gerar PIX</p><p style="font-size:13px;color:#64748B;margin-bottom:16px">'+err.message+'</p><button class="btn-primary" onclick="closeModal()">Fechar</button></div>', true);
+  }
+}
+
+async function handleClientLogin(e){
+  e.preventDefault();
+  var g = $('cli-grupo').value.trim();
+  var q = $('cli-cota').value.trim();
+  var btn = $('btn-cli-login'), txt = $('btn-cli-login-txt');
+  btn.disabled = true; txt.innerHTML = '<div class="loading-spinner"></div>';
+  try{
+    var r = await db.from('clients').select('*').eq('group_number', g).eq('quota', q).limit(1).single();
+    if(r.error || !r.data) throw new Error('Grupo ou Cota nao encontrados.');
+    session = { type:'client', clientId: r.data.id, name: r.data.name };
+    startApp();
+  }catch(err){
+    $('cli-erro').classList.remove('hide');
+    $('cli-erro-msg').textContent = err.message || 'Grupo ou Cota nao encontrados.';
+  }finally{ btn.disabled = false; txt.textContent = 'Entrar'; }
+}
+
+async function handleAdminLogin(e){
+  e.preventDefault();
+  var em = $('adm-email').value.trim().toLowerCase();
+  var sn = $('adm-senha').value;
+  var btn = $('btn-adm-login'), txt = $('btn-adm-login-txt');
+  btn.disabled = true; txt.innerHTML = '<div class="loading-spinner"></div>';
+  try{
+    var r = await db.from('settings').select('*').eq('id', 1).single();
+    if(r.error) throw new Error('Erro ao consultar credenciais');
+    var adminEmail = ((r.data && r.data.admin_email) || 'admin@uniaonext.com').toLowerCase();
+    var adminPass = (r.data && r.data.admin_password_hash) || 'admin123';
+    if(em !== adminEmail || sn !== adminPass) throw new Error('Credenciais invalidas.');
+    session = { type:'admin', name:'Administrador' };
+    startApp();
+  }catch(err){
+    $('adm-erro').classList.remove('hide');
+    $('adm-erro-msg').textContent = err.message || 'Credenciais invalidas.';
+  }finally{ btn.disabled = false; txt.textContent = 'Acessar Painel'; }
+}
+
+function startApp(){
+  showScreen('s-app');
+  if(!session){ showScreen('s-welcome'); return; }
+  $('nav-av').textContent = (session.name||'A').charAt(0).toUpperCase();
+  $('nav-nome').textContent = (session.name||'').split(' ')[0];
+  $('nav-role').textContent = session.type === 'admin' ? 'Administrador' : 'Cliente';
+  if(session.type === 'admin'){
+    $('view-admin').classList.remove('hide');
+    $('view-cliente').classList.add('hide');
+    $('tab-bar').classList.add('hide');
+    renderAdmin();
+  } else {
+    $('view-admin').classList.add('hide');
+    $('view-cliente').classList.remove('hide');
+    $('tab-bar').classList.remove('hide');
+    currentClientTab = 'inicio';
+    updateTabBar();
+    renderClient();
+    var c = data.clients.find(function(x){return x.id === session.clientId;});
+    if(c){
+      var notifs = data.notices.filter(function(n){ return n.target === 'todos' || n.clientId === c.id; });
+      if(notifs.length > 0) $('notif-dot').classList.remove('hide');
+    }
+  }
+}
+
+function updateTabBar(){
+  document.querySelectorAll('.tab-item').forEach(function(t){ t.classList.toggle('active', t.dataset.tab === currentClientTab); });
+}
+
+function populateClientSelect(){
+  var sel = $('av-cliente');
+  if(!sel) return;
+  sel.innerHTML = '';
+  data.clients.forEach(function(c){
+    var opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name + ' (G' + c.group + ' C' + c.quota + ')';
+    sel.appendChild(opt);
+  });
+}
+
+async function init(){
+  if(!initSupabase()){ showToast('Erro Supabase','error'); return; }
+  await loadFromSupabase();
+
+  $('go-admin').addEventListener('click', function(){ showToast('Acesso restrito. Procure o Master Principal.','warning'); });
+  $('go-cliente').addEventListener('click', function(){ showScreen('s-cliente-login'); });
+  $('back1').addEventListener('click', function(){ showScreen('s-welcome'); });
+  $('back2').addEventListener('click', function(){ showScreen('s-welcome'); });
+  $('form-cliente-login').addEventListener('submit', handleClientLogin);
+  $('form-admin-login').addEventListener('submit', handleAdminLogin);
+
+  var tapCount = 0, tapTimer = null;
+  $('logo-trigger').addEventListener('click', function(){
+    tapCount++;
+    if(tapCount >= 4 && tapCount < 7) showToast('Faltam ' + (7-tapCount) + ' toque(s)...','warning');
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(function(){ tapCount = 0; }, 3000);
+    if(tapCount === 7){ tapCount = 0; showToast('🔓 Acesso administrativo liberado','success'); setTimeout(function(){ showScreen('s-admin-login'); }, 500); }
+  });
+
+  $('btn-logout').addEventListener('click', function(){
+    if(!confirm('Deseja sair?')) return;
+    session = null; showScreen('s-welcome');
+  });
+
+  document.querySelectorAll('.atab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.atab').forEach(function(x){ x.style.background = '#F8FAFC'; x.style.color = '#0B3B60'; });
+      t.style.background = '#0B3B60'; t.style.color = '#fff';
+      document.querySelectorAll('.atab-panel').forEach(function(p){ p.classList.add('hide'); });
+      $('at-' + t.dataset.atab).classList.remove('hide');
+    });
+  });
+
+  $('busca-cli').addEventListener('input', renderClientList);
+  $('btn-novo-cli').addEventListener('click', function(){ openClientModal(null); });
+
+  $('av-dest').addEventListener('change', function(){ $('av-cliente-wrap').classList.toggle('hide', this.value !== 'especifico'); });
+  $('form-aviso').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var target = $('av-dest').value;
+    var notice = {
+      title: $('av-titulo').value, message: $('av-msg').value,
+      priority: $('av-prio').value, target: target,
+      clientId: target === 'especifico' ? $('av-cliente').value : null
+    };
+    try{
+      await saveNoticeDB(notice);
+      await loadFromSupabase();
+      e.target.reset(); $('av-cliente-wrap').classList.add('hide');
+      renderAvisosList(); showToast('✅ Aviso publicado!','success');
+    }catch(err){ showToast('Erro: ' + err.message,'error'); }
+  });
+
+  $('form-pix').addEventListener('submit', async function(e){
+    e.preventDefault();
+    data.settings.pixKey = $('pix-chave').value;
+    data.settings.pixName = $('pix-nome').value;
+    data.settings.pixCity = $('pix-cidade').value;
+    try{ await saveSettingsDB(data.settings); showToast('✅ Configuracoes salvas!','success'); }
+    catch(err){ showToast('Erro: ' + err.message,'error'); }
+  });
+
+  $('form-admin-creds').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var em = $('adm-novo-email').value.trim();
+    var sn = $('adm-nova-senha').value.trim();
+    if(em) data.settings.adminEmail = em;
+    try{
+      await db.from('settings').update({ admin_email: data.settings.adminEmail }).eq('id', 1);
+      if(sn){ await db.from('settings').update({ admin_password_hash: sn }).eq('id', 1); }
+      showToast('✅ Credenciais atualizadas!','success');
+      await loadFromSupabase();
+    }catch(err){ showToast('Erro: ' + err.message,'error'); }
+  });
+
+  document.querySelectorAll('.tab-item').forEach(function(t){
+    t.addEventListener('click', function(){
+      currentClientTab = t.dataset.tab;
+      updateTabBar(); renderClient();
+      if(currentClientTab === 'avisos') $('notif-dot').classList.add('hide');
+    });
+  });
+
+  showScreen('s-welcome');
+  populateClientSelect();
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+})();
+</script>
+</body>
+</html>
